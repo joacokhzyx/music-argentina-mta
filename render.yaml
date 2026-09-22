@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: music-argentina-mta
+    runtime: python
+    buildCommand: >
+      apt-get update &&
+      apt-get install -y ffmpeg &&
+      pip install -r requirements.txt
+    startCommand: python server.py
+    envVars:
+      - key: PORT
+        value: 5005
+      - key: MAX_CACHE_MB
+        value: 500
+    healthCheckPath: /health
+    freeInstance: true
