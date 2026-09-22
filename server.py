@@ -9,6 +9,7 @@ import subprocess
 from flask import Flask, Response, request, jsonify, send_file, abort
 import yt_dlp
 import requests
+import tempfile
 
 app = Flask(__name__)
 
@@ -21,6 +22,20 @@ os.makedirs(CACHE_DIR, exist_ok=True)
 FFMPEG_PATH = shutil.which("ffmpeg")
 
 print(f"[INIT] ffmpeg: {bool(FFMPEG_PATH)} ({FFMPEG_PATH})", flush=True)
+
+# YouTube cookies desde variable de entorno
+COOKIES_PATH = None
+YOUTUBE_COOKIES = os.environ.get("YOUTUBE_COOKIES", "")
+if YOUTUBE_COOKIES:
+    _cookie_file = tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False)
+    _cookie_file.write(YOUTUBE_COOKIES)
+    _cookie_file.close()
+    COOKIES_PATH = _cookie_file.name
+    print(f"[INIT] Cookies de YouTube cargadas ({len(YOUTUBE_COOKIES)} chars)", flush=True)
+else:
+    print("[INIT] Sin cookies de YouTube (YOUTUBE_COOKIES no definida)", flush=True)
+
+
 
 _locks = {}
 _locks_guard = threading.Lock()
@@ -56,13 +71,16 @@ def sanitize_query(q):
 
 
 def ydl_opts_base():
-    return {
+    opts = {
         "quiet": True,
         "noplaylist": True,
         "format": "bestaudio/best",
         "no_warnings": True,
         "extractor_args": {"youtube": {"player_client": ["mweb", "web", "android"]}},
     }
+    if COOKIES_PATH:
+        opts["cookiefile"] = COOKIES_PATH
+    return opts
 
 
 def resolve_info(query):
