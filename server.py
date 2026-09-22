@@ -145,7 +145,13 @@ def ensure_cached(video_id):
 
 @app.route("/health")
 def health():
-    return jsonify(ok=True, ffmpeg=bool(FFMPEG_PATH), ts=int(time.time()))
+    import yt_dlp
+    return jsonify(
+        ok=True,
+        ffmpeg=bool(FFMPEG_PATH),
+        ytdlp_version=yt_dlp.version.__version__,
+        ts=int(time.time()),
+    )
 
 
 @app.route("/resolve", methods=["GET", "POST"])
