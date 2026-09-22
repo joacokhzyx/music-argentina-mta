@@ -61,7 +61,7 @@ def ydl_opts_base():
         "noplaylist": True,
         "format": "bestaudio/best",
         "no_warnings": True,
-        "extractor_args": {"youtube": {"player_client": ["android", "web_creator"]}},
+        "extractor_args": {"youtube": {"player_client": ["mweb", "web", "android"]}},
     }
 
 
